@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sook - The Narrative</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700&family=Noto+Naskh+Arabic:wght@700&family=Noto+Sans+Devanagari:wght@700&family=Roboto:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        /* Base Styles - Clean White Theme */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+        }
+
+        #hero-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 0 40px;
+        }
+
+        /* Container for the sentence to ensure stability */
+        .story-container {
+            width: 100%;
+            max-width: 1200px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .story-text {
+            font-size: 3rem;
+            font-weight: 400;
+            line-height: 1.6;
+            color: #1a1a1a;
+            text-align: center;
+            display: block;
+            min-height: 150px;
+        }
+
+        /* The individual words (for animation) */
+        .word {
+            display: inline-block;
+            opacity: 0;
+            margin: 0 8px;
+        }
+
+        /* Embedded Script Styling */
+        .embedded-script {
+            font-weight: 600;
+            display: inline-block;
+            margin: 0 4px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .story-text { 
+                font-size: 1.75rem; 
+            }
+            .word {
+                margin: 0 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hero-container">
+        <div class="story-container">
+            <div class="story-text" id="story-text"></div>
+        </div>
+    </div>
+
+    <script>
+        console.log('Script loaded');
+        
+        // Data: Sentences with clear word boundaries
+        const sentences = [
+            {
+                words: [
+                    "In",
+                    "Arabic,",
+                    "Sook",
+                    "<span class='embedded-script' style='font-family: \"Noto Naskh Arabic\", serif; color: #C05621;'>سوق</span>",
+                    "is",
+                    "a",
+                    "lane",
+                    "in",
+                    "a",
+                    "bazaar,",
+                    "specific",
+                    "to",
+                    "needs."
+                ]
+            },
+            {
+                words: [
+                    "In",
+                    "Korean,",
+                    "Sook",
+                    "<span class='embedded-script' style='font-family: \"Noto Sans KR\", sans-serif; color: #5C7A7C;'>숙</span>",
+                    "means",
+                    "pristine",
+                    "and",
+                    "beautiful."
+                ]
+            },
+            {
+                words: [
+                    "In",
+                    "Hindi,",
+                    "Sook",
+                    "<span class='embedded-script' style='font-family: \"Noto Sans Devanagari\", sans-serif; color: #D69E2E;'>सुख</span>",
+                    "is",
+                    "a",
+                    "state",
+                    "of",
+                    "happiness",
+                    "and",
+                    "calm."
+                ]
+            },
+            {
+                words: [
+                    "In",
+                    "Russian,",
+                    "Sook",
+                    "<span class='embedded-script' style='font-family: \"Roboto\", sans-serif; color: #1B3B36;'>сук</span>",
+                    "is",
+                    "a",
+                    "branch",
+                    "that",
+                    "connects."
+                ]
+            }
+        ];
+
+        let currentIndex = 0;
+        const storyText = document.getElementById("story-text");
+
+        function animateCycle() {
+            const currentItem = sentences[currentIndex];
+            console.log('Animating sentence', currentIndex);
+            
+            // 1. SETUP - Build HTML with word spans FIRST
+            const html = currentItem.words
+                .map(word => `<span class="word">${word}</span>`)
+                .join('');
+            storyText.innerHTML = html;
+            console.log('HTML set, words found:', document.querySelectorAll("#story-text .word").length);
+            
+            // Set all words to hidden
+            gsap.set("#story-text .word", { opacity: 0, y: 20 });
+            
+            // NOW create the timeline
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    currentIndex = (currentIndex + 1) % sentences.length;
+                    animateCycle();
+                }
+            });
+
+            // 2. ENTER - Staggered word reveal
+            tl.to("#story-text .word", {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,
+                stagger: 0.08,
+                ease: "power2.out"
+            }, 0);
+
+            // 3. READ - Hold for reading
+            tl.to({}, { duration: 2.5 });
+
+            // 4. EXIT - Fade out
+            tl.to("#story-text .word", {
+                opacity: 0,
+                y: -15,
+                duration: 0.4,
+                stagger: 0.02,
+                ease: "power2.in"
+            });
+        }
+
+        // Wait for DOM to be ready
+        window.addEventListener('load', () => {
+            console.log('Window loaded, starting animation');
+            animateCycle();
+        });
+    </script>
+</body>
+</html>
