@@ -6,6 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
+  transpilePackages: ['gsap'],
   /* Enable SVG imports if needed */
   webpack(config) {
     config.module.rules.push({

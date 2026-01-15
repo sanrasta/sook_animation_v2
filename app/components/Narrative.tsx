@@ -1,88 +1,124 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import styles from './narrative.module.css';
+
+const sentences = [
+  {
+    words: [
+      "In",
+      "Arabic,",
+      "Sook",
+      "<span class='embedded-script' style='font-family: \"Noto Naskh Arabic\", serif; color: #C05621;'>سوق</span>",
+      "is",
+      "a",
+      "lane",
+      "in",
+      "a",
+      "bazaar,",
+      "specific",
+      "to",
+      "needs."
+    ]
+  },
+  {
+    words: [
+      "In",
+      "Korean,",
+      "Sook",
+      "<span class='embedded-script' style='font-family: \"Noto Sans KR\", sans-serif; color: #5C7A7C;'>숙</span>",
+      "means",
+      "pristine",
+      "and",
+      "beautiful."
+    ]
+  },
+  {
+    words: [
+      "In",
+      "Hindi,",
+      "Sook",
+      "<span class='embedded-script' style='font-family: \"Noto Sans Devanagari\", sans-serif; color: #D69E2E;'>सुख</span>",
+      "is",
+      "a",
+      "state",
+      "of",
+      "happiness",
+      "and",
+      "calm."
+    ]
+  },
+  {
+    words: [
+      "In",
+      "Russian,",
+      "Sook",
+      "<span class='embedded-script' style='font-family: \"Roboto\", sans-serif; color: #1B3B36;'>сук</span>",
+      "is",
+      "a",
+      "branch",
+      "that",
+      "connects."
+    ]
+  }
+];
 
 const Narrative = () => {
   const storyTextRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
-
-  const sentences = [
-    {
-      words: [
-        "In",
-        "Arabic,",
-        "Sook",
-        "<span class='embedded-script' style='font-family: \"Noto Naskh Arabic\", serif; color: #C05621;'>سوق</span>",
-        "is",
-        "a",
-        "lane",
-        "in",
-        "a",
-        "bazaar,",
-        "specific",
-        "to",
-        "needs."
-      ]
-    },
-    {
-      words: [
-        "In",
-        "Korean,",
-        "Sook",
-        "<span class='embedded-script' style='font-family: \"Noto Sans KR\", sans-serif; color: #5C7A7C;'>숙</span>",
-        "means",
-        "pristine",
-        "and",
-        "beautiful."
-      ]
-    },
-    {
-      words: [
-        "In",
-        "Hindi,",
-        "Sook",
-        "<span class='embedded-script' style='font-family: \"Noto Sans Devanagari\", sans-serif; color: #D69E2E;'>सुख</span>",
-        "is",
-        "a",
-        "state",
-        "of",
-        "happiness",
-        "and",
-        "calm."
-      ]
-    },
-    {
-      words: [
-        "In",
-        "Russian,",
-        "Sook",
-        "<span class='embedded-script' style='font-family: \"Roboto\", sans-serif; color: #1B3B36;'>сук</span>",
-        "is",
-        "a",
-        "branch",
-        "that",
-        "connects."
-      ]
-    }
-  ];
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      timelineRef.current?.kill();
+    };
   }, []);
 
-  const animateCycle = (currentIndex: number = 0, isMessageCycle: boolean = false) => {
-    if (!storyTextRef.current || !mounted) return;
+  const showMessage = useCallback(() => {
+    if (!storyTextRef.current) return;
+    
+    // Clear narrative text
+    storyTextRef.current.innerHTML = '';
+    
+    // Create message HTML (smile is handled by SookIntro)
+    const messageHTML = `
+      <div class="${styles.messageContainer}">
+        <div class="${styles.messageLine}">Welcome to the marketplace</div>
+        <div class="${styles.messageLine}">Find your lane(s)</div>
+      </div>
+    `;
+    storyTextRef.current.innerHTML = messageHTML;
+    
+    // Animate message in
+    const tl = gsap.timeline();
+
+    tl.to({}, { duration: 0.3 });
+    tl.to(`.${styles.messageLine}`, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: "power2.out"
+    }, 0);
+    
+    timelineRef.current = tl;
+  }, []);
+
+  const animateCycle = useCallback(() => {
+    if (!storyTextRef.current) return;
 
     const animateSequence = (index: number) => {
+      if (!storyTextRef.current) return;
+      
       const currentItem = sentences[index];
       
       // Build HTML with word spans
       const html = currentItem.words
         .map(word => `<span class="${styles.word}">${word}</span>`)
         .join('');
-      storyTextRef.current!.innerHTML = html;
+      storyTextRef.current.innerHTML = html;
       
       // Set all words to hidden
       gsap.set(`.${styles.word}`, { opacity: 0, y: 20 });
@@ -121,42 +157,26 @@ const Narrative = () => {
         stagger: 0.02,
         ease: "power2.in"
       });
+      
+      timelineRef.current = tl;
     };
 
-    animateSequence(currentIndex);
-  };
-
-  const showMessage = () => {
-    // Clear narrative text
-    storyTextRef.current!.innerHTML = '';
-    
-    // Create message HTML (smile is handled by SookIntro)
-    const messageHTML = `
-      <div class="${styles.messageContainer}">
-        <div class="${styles.messageLine}">Welcome to the marketplace</div>
-        <div class="${styles.messageLine}">Find your lane(s)</div>
-      </div>
-    `;
-    storyTextRef.current!.innerHTML = messageHTML;
-    
-    // Animate message in
-    const tl = gsap.timeline();
-
-    tl.to({}, { duration: 0.3 });
-    tl.to(`.${styles.messageLine}`, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      stagger: 0.2,
-      ease: "power2.out"
-    }, 0);
-  };
+    animateSequence(0);
+  }, [showMessage]);
 
   useEffect(() => {
     if (mounted) {
-      animateCycle();
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        animateCycle();
+      }, 100);
+      
+      return () => {
+        clearTimeout(timer);
+        timelineRef.current?.kill();
+      };
     }
-  }, [mounted]);
+  }, [mounted, animateCycle]);
 
   return (
     <div className={styles.container} suppressHydrationWarning>
