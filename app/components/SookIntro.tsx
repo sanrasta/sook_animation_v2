@@ -92,8 +92,8 @@ export const SookIntro: React.FC<SookIntroProps> = ({ autoPlay = true }) => {
       // Smaller eyes that fit inside the zeros with space around them
       const width = rect.width * 0.55;
       const height = rect.height * 0.55;
-      const left = rect.left - containerRect.left + rect.width / 2 - width / 2 + 2; // +1px right
-      const top = rect.top - containerRect.top + rect.height / 2 - height / 2 + 2; // +2px lower
+      const left = rect.left - containerRect.left + rect.width / 2 - width / 2 + 1; // +1px right
+      const top = rect.top - containerRect.top + rect.height / 2 - height / 2 + 1; // +1px lower
       return { left, top, width, height };
     };
 
