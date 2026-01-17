@@ -4,12 +4,13 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   background: #ffffff;
   font-family: 'Montserrat', system-ui, sans-serif;
   padding: 20px;
   width: 100%;
+  min-height: 100vh;
 }
 
 /* Header with logo and smile */
